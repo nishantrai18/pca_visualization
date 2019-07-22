@@ -53,6 +53,7 @@ vs.plot_pca_components_as_img(pca, resize_shape)
 ```
 
 This plots the PCA components, the result is as shown below,
+
 ![alt text][pca_comps]
 
 We can also plot the distribution of the compressed features.
@@ -62,6 +63,7 @@ vs.plot_pca_feature_dist(pca, face_imgs)
 ```
 
 In our case, this gives us,
+
 ![alt text][pca_fets]
 
 Finally, we can generate **NEW** instances by sampling values in the compressed feature space and reconstructing it. We have a utility which encapsulates all this logic.
@@ -70,7 +72,8 @@ Finally, we can generate **NEW** instances by sampling values in the compressed 
 vs.gen_and_plot_imgs_from_pca_coords(pca, resize_shape, face_imgs, num_comps_to_plot=2)
 ```
 
-This results in,
+This results in the following figure. Note that the orientation and other features of the face change as we change the values. This can be helpful in analysing what does each principal component semantically represent. 
+
 ![alt text][pca_gen_imgs]
 
 More details can be found in the comments present in the code.
