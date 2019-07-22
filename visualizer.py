@@ -97,15 +97,21 @@ def plot_pca_feature_dist(pca, x, filename='pca_feat_dist.png'):
     )
 
 
-plt.imshow(pca_fc.mean_.reshape((-1, 64, 64))[0], cmap=plt.cm.bone, interpolation='nearest')
-
-coord_one = [-10, -5, 0, 5, 10]
-coord_two = [-10, -5, 0, 5, 10]
-coords = np.array([[a, b] for a in coord_one for b in coord_two])
-objs_fc_gen = pca_fc.inverse_transform(coords.reshape((-1, 2))).reshape((-1, 64, 64))
-
-
 def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_plot=1, num_steps=3, filename='gen_pca_imgs.png'):
+    '''
+        Generates and reconstructs features from a compressed representation, then plots 
+        the resultant images with the specified params.
+        Args:
+            pca: The sklearn PCA object which has been fit with the dataset
+            resize_shape: Tuple representing the shape of the img. Note that it should 
+                          either be (h, w), (h, w, 1) or (h, w, 3) in order to allow 
+                          ax.imshow() to plot it.
+            x: Sample of the dataset in order to infer the ideal ranges to plot
+            num_comps_to_plot: The number of components varied in order to generate the
+                               new images
+            num_steps: Number of datapoints in each sample
+            filename: The file to save the final result in
+    '''
 
     num_pca_comp = pca.components_.shape[0]
 
@@ -135,6 +141,9 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
     else:
         fets = pca.transform(x)
         ls, rs = np.amin(fets, axis=1), np.amax(fets, axis=1)
+        # Scale the ranges in order to get more extreme results
+        scale = 1.5
+        ls, rs = ls * scale, rs * scale
 
     # Generate the coordinates for each component to be varied
     coords = [np.arange(ls[i], rs[i], (rs[i] - ls[i]) / num_steps) for i in range(num_comps_to_plot)]
