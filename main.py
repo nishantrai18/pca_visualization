@@ -36,6 +36,11 @@ parser.add_argument(
     default="./figures/",
     help="Optional. Denotes the location of the saving dir")
 parser.add_argument(
+    '--should_save_fig', 
+    type=str2bool,
+    default=True,
+    help="Optional. Specifies whether to save the figures or show it on display")
+parser.add_argument(
     '--run_demo_with_faces', 
     type=str2bool,
     default=True,
@@ -73,6 +78,7 @@ if __name__ == '__main__':
 
     # Set the global constants
     vs.FIG_SAVE_DIR = args.save_dir
+    vs.SHOULD_SAVE_FIG = args.should_save_fig
 
     # Create the dir if not exists
     if not os.path.exists(vs.FIG_SAVE_DIR):

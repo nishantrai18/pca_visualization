@@ -14,7 +14,7 @@ import numpy as np
 IMG_DTYPE = 'img'
 HIST_DTYPE = 'hist'
 
-PLT_FIG_SIZE = 10
+SHOULD_SAVE_FIG = True
 FIG_SAVE_DIR = "./figures/"
 
 
@@ -36,17 +36,18 @@ def plot_subplots(objs, plot_titles, path, dtype=IMG_DTYPE):
         objs.shape[0] == len(plot_titles), \
         "Objs shape and plot titles do not match. Objs: {}, Titles: {}".format(objs.shape, len(plot_titles))
 
-    fig = plt.figure(figsize=(PLT_FIG_SIZE, PLT_FIG_SIZE))
-    fig.subplots_adjust(left=0, right=1, bottom=0, top=1, hspace=0.05, wspace=0.05)
-
     # Cosntruct the grid lengths
     nrows = int(len(plot_titles) ** (0.5)) + 1
     ncols = (len(plot_titles) // nrows) + 1
 
+    fig, axs = plt.subplots(nrows, ncols)
+    fig.suptitle('Main title')
+
     for i in range(objs.shape[0]):
 
-        ax = fig.add_subplot(nrows, ncols, i+1, xticks=[], yticks=[])
-        ax.title.set_text(plot_titles[i])
+        # Get the coordinates
+        ni, nj = i // ncols, i % ncols
+        ax = axs[ni][nj]
 
         if dtype == IMG_DTYPE:
             ax.imshow(objs[i], cmap=plt.cm.bone, interpolation='nearest')
@@ -54,9 +55,17 @@ def plot_subplots(objs, plot_titles, path, dtype=IMG_DTYPE):
             ax.hist(objs[i])
         else:
             logging.error("Invalid dtype provided for plotting")
+            return
 
-    # Save figure to the specified path
-    plt.savefig(path)
+        ax.set_title(plot_titles[i])
+        ax.grid()
+
+    if SHOULD_SAVE_FIG:
+        # Save figure to the specified path
+        plt.savefig(path)
+    else:
+        # Plot the plots otherwise
+        plt.show()
 
 
 def plot_pca_components_as_img(pca, resize_shape, filename='pca_components.png'):
@@ -79,6 +88,8 @@ def plot_pca_components_as_img(pca, resize_shape, filename='pca_components.png')
     component_objs = components.reshape((-1, *resize_shape))
     # Generate the corresponding titles of the subplots
     plot_titles = ['mean'] + ['comp_' + str(i) for i in range(len(pca.components_))]
+
+    print(plot_titles)
 
     # Plot and save the resultant images
     plot_subplots(
@@ -155,7 +166,7 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
         ls, rs = [-5] * num_pca_comp, [-5] * num_pca_comp
     else:
         fets = pca.transform(x)
-        ls, rs = np.amin(fets, axis=1), np.amax(fets, axis=1)
+        ls, rs = np.amin(fets, axis=0), np.amax(fets, axis=0)
         # Scale the ranges in order to get more extreme results
         scale = 1.5
         ls, rs = ls * scale, rs * scale
@@ -167,10 +178,10 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
 
     # Generate all permutations of all the coordinates
     all_coords = np.array(list(itertools.product(*coords)))
-    print(all_coords)
-    # Generate plot titles
-    plot_titles = ['gen_img'] * len(all_coords)
-    print(plot_titles)
+    # Generate plot titles, compressing the coords to a string
+    plot_titles = \
+        ['gen_img_' + np.array2string(all_coords[i], formatter={'all': lambda x: "%.1f" % x}) for i in range(all_coords.shape[0])]
+
     # Get the inverse generated features. This will be resized to the desired image
     gen_inv_imgs = pca.inverse_transform(all_coords.reshape((-1, num_pca_comp))).reshape((-1, *resize_shape))
 
