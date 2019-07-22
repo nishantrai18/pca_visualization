@@ -45,6 +45,8 @@ parser.add_argument(
 def run_olivetti_faces_demo():
 	# Get the face data images
 	face_imgs = fetch_olivetti_faces().data
+	# Denotes the resized shape if the features are considered as images
+	resize_shape = (64, 64)
 
 	# We are only operating one class in order to get better visualizations
 	# Note that the first 10 faces correspond to the same person. Making it
@@ -55,7 +57,12 @@ def run_olivetti_faces_demo():
 	pca = PCA(n_components=2, svd_solver='randomized')
 	pca.fit(face_imgs)
 
-	
+	plot_pca_components_as_img(pca, resize_shape)
+
+	plot_pca_feature_dist(pca, face_imgs)
+
+	gen_and_plot_imgs_from_pca_coords(pca, resize_shape, face_imgs)
+
 
 if __name__ == '__main__':
 

@@ -67,6 +67,8 @@ def plot_pca_components_as_img(pca, resize_shape, filename='pca_components.png')
                           in order to allow ax.imshow() to plot it.
     '''
 
+    logging.info("Plotting the pca components...")
+
     # Add the mean to the components in order to plot
     components = np.concatenate((pca.mean_.reshape((1, -1)), pca.components_), axis=0)
     component_objs = components.reshape((-1, *resize_shape))
@@ -78,6 +80,8 @@ def plot_pca_components_as_img(pca, resize_shape, filename='pca_components.png')
         component_objs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
     )
 
+    logging.info("Finsihed plotting the pca components.")
+
 
 def plot_pca_feature_dist(pca, x, filename='pca_feat_dist.png'):
     '''
@@ -88,6 +92,8 @@ def plot_pca_feature_dist(pca, x, filename='pca_feat_dist.png'):
             filename: Destination to save the resultant plot
     '''
 
+    logging.info("Plotting the distribution of the pca components...")
+
     fets = np.transpose(pca.transform(x))
     plot_titles = ['fet_' + i for i in range(fets.shape[0])]
 
@@ -95,6 +101,8 @@ def plot_pca_feature_dist(pca, x, filename='pca_feat_dist.png'):
     plot_subplots(
         component_objs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=HIST_DTYPE
     )
+
+    logging.info("Finished plotting the distribution.")
 
 
 def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_plot=1, num_steps=3, filename='gen_pca_imgs.png'):
@@ -112,6 +120,8 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
             num_steps: Number of datapoints in each sample
             filename: The file to save the final result in
     '''
+
+    logging.info("Generating and plotting images...")
 
     num_pca_comp = pca.components_.shape[0]
 
@@ -157,7 +167,11 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
     # Get the inverse generated features. This will be resized to the desired image
     gen_inv_fets = pca.inverse_transform(coords.reshape((-1, num_pca_comp))).reshape((-1, *resize_shape))
 
+    logging.info("Generated the images from our representation. Now plotting the images...")
+
     # Plot and save the resultant images
     plot_subplots(
         component_objs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
     )
+
+    logging.info("Finished plotting the images.")
