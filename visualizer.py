@@ -3,6 +3,11 @@ import logging
 import os
 import sklearn
 
+import matplotlib
+# In order to handle the OSX backend issue
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
 import numpy as np
 
 # Constants and params for the file
@@ -28,24 +33,24 @@ def plot_subplots(objs, plot_titles, path, dtype=IMG_DTYPE):
     '''
 
     assert \
-        objs.shape[0] == len(plot_titles),
+        objs.shape[0] == len(plot_titles), \
         "Objs shape and plot titles do not match. Objs: {}, Titles: {}".format(objs.shape, len(plot_titles))
 
     fig = plt.figure(figsize=(PLT_FIG_SIZE, PLT_FIG_SIZE))
     fig.subplots_adjust(left=0, right=1, bottom=0, top=1, hspace=0.05, wspace=0.05)
 
     # Cosntruct the grid lengths
-    nrows = int(len(components) ** (0.5)) + 1
-    ncols = (len(components) // nrows) + 1
+    nrows = int(len(plot_titles) ** (0.5)) + 1
+    ncols = (len(plot_titles) // nrows) + 1
 
-    for i in range(components.shape[0]):
+    for i in range(objs.shape[0]):
 
         ax = fig.add_subplot(nrows, ncols, i+1, xticks=[], yticks=[])
         ax.title.set_text(plot_titles[i])
 
         if dtype == IMG_DTYPE:
             ax.imshow(objs[i], cmap=plt.cm.bone, interpolation='nearest')
-        elif dtype = HIST_DTYPE:
+        elif dtype == HIST_DTYPE:
             ax.hist(objs[i])
         else:
             logging.error("Invalid dtype provided for plotting")
@@ -73,7 +78,7 @@ def plot_pca_components_as_img(pca, resize_shape, filename='pca_components.png')
     components = np.concatenate((pca.mean_.reshape((1, -1)), pca.components_), axis=0)
     component_objs = components.reshape((-1, *resize_shape))
     # Generate the corresponding titles of the subplots
-    plot_titles = ['mean'] + ['comp_' + i for i in range(len(pca.components_))]
+    plot_titles = ['mean'] + ['comp_' + str(i) for i in range(len(pca.components_))]
 
     # Plot and save the resultant images
     plot_subplots(
@@ -95,11 +100,11 @@ def plot_pca_feature_dist(pca, x, filename='pca_feat_dist.png'):
     logging.info("Plotting the distribution of the pca components...")
 
     fets = np.transpose(pca.transform(x))
-    plot_titles = ['fet_' + i for i in range(fets.shape[0])]
+    plot_titles = ['fet_' + str(i) for i in range(fets.shape[0])]
 
     # Plot and save the resultant images
     plot_subplots(
-        component_objs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=HIST_DTYPE
+        fets, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=HIST_DTYPE
     )
 
     logging.info("Finished plotting the distribution.")
@@ -161,17 +166,19 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
     coords = coords + [[0.0] for i in range(num_comps_to_plot, num_pca_comp)]
 
     # Generate all permutations of all the coordinates
-    all_coords = list(itertools.product(*coords))
+    all_coords = np.array(list(itertools.product(*coords)))
+    print(all_coords)
     # Generate plot titles
     plot_titles = ['gen_img'] * len(all_coords)
+    print(plot_titles)
     # Get the inverse generated features. This will be resized to the desired image
-    gen_inv_fets = pca.inverse_transform(coords.reshape((-1, num_pca_comp))).reshape((-1, *resize_shape))
+    gen_inv_imgs = pca.inverse_transform(all_coords.reshape((-1, num_pca_comp))).reshape((-1, *resize_shape))
 
     logging.info("Generated the images from our representation. Now plotting the images...")
 
     # Plot and save the resultant images
     plot_subplots(
-        component_objs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
+        gen_inv_imgs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
     )
 
     logging.info("Finished plotting the images.")

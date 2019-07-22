@@ -57,11 +57,11 @@ def run_olivetti_faces_demo():
 	pca = PCA(n_components=2, svd_solver='randomized')
 	pca.fit(face_imgs)
 
-	plot_pca_components_as_img(pca, resize_shape)
+	vs.plot_pca_components_as_img(pca, resize_shape)
 
-	plot_pca_feature_dist(pca, face_imgs)
+	vs.plot_pca_feature_dist(pca, face_imgs)
 
-	gen_and_plot_imgs_from_pca_coords(pca, resize_shape, face_imgs)
+	vs.gen_and_plot_imgs_from_pca_coords(pca, resize_shape, face_imgs)
 
 
 if __name__ == '__main__':
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     vs.FIG_SAVE_DIR = args.save_dir
 
     # Create the dir if not exists
-    if not os.path.exists(directory):
-	    os.makedirs(directory)
+    if not os.path.exists(vs.FIG_SAVE_DIR):
+	    os.makedirs(vs.FIG_SAVE_DIR)
 
     logging.info("Arguments passed are: %s", args)
     
