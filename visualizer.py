@@ -18,7 +18,7 @@ SHOULD_SAVE_FIG = True
 FIG_SAVE_DIR = "./figures/"
 
 
-def plot_subplots(objs, plot_titles, path, dtype=IMG_DTYPE):
+def plot_subplots(objs, main_title, plot_titles, path, dtype=IMG_DTYPE):
     '''
         Plots objs (could represent imgs or values) as subplots.
         Args:
@@ -37,11 +37,12 @@ def plot_subplots(objs, plot_titles, path, dtype=IMG_DTYPE):
         "Objs shape and plot titles do not match. Objs: {}, Titles: {}".format(objs.shape, len(plot_titles))
 
     # Cosntruct the grid lengths
-    nrows = int(len(plot_titles) ** (0.5)) + 1
-    ncols = (len(plot_titles) // nrows) + 1
+    nrows = round(len(plot_titles) ** (0.5))
+    ncols = round(len(plot_titles) / nrows)
 
-    fig, axs = plt.subplots(nrows, ncols)
-    fig.suptitle('Main title')
+    fig, axs = plt.subplots(nrows, ncols, squeeze=False)
+    fig.subplots_adjust(hspace=.5)
+    fig.suptitle(main_title)
 
     for i in range(objs.shape[0]):
 
@@ -89,11 +90,9 @@ def plot_pca_components_as_img(pca, resize_shape, filename='pca_components.png')
     # Generate the corresponding titles of the subplots
     plot_titles = ['mean'] + ['comp_' + str(i) for i in range(len(pca.components_))]
 
-    print(plot_titles)
-
     # Plot and save the resultant images
     plot_subplots(
-        component_objs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
+        component_objs, 'pca_components', plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
     )
 
     logging.info("Finsihed plotting the pca components.")
@@ -115,7 +114,7 @@ def plot_pca_feature_dist(pca, x, filename='pca_feat_dist.png'):
 
     # Plot and save the resultant images
     plot_subplots(
-        fets, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=HIST_DTYPE
+        fets, 'pca_features', plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=HIST_DTYPE
     )
 
     logging.info("Finished plotting the distribution.")
@@ -189,7 +188,7 @@ def gen_and_plot_imgs_from_pca_coords(pca, resize_shape, x=None, num_comps_to_pl
 
     # Plot and save the resultant images
     plot_subplots(
-        gen_inv_imgs, plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
+        gen_inv_imgs, 'generated_pca_imgs', plot_titles, path=os.path.join(FIG_SAVE_DIR, filename), dtype=IMG_DTYPE
     )
 
     logging.info("Finished plotting the images.")

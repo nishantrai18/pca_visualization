@@ -66,7 +66,7 @@ def run_olivetti_faces_demo():
 
 	vs.plot_pca_feature_dist(pca, face_imgs)
 
-	vs.gen_and_plot_imgs_from_pca_coords(pca, resize_shape, face_imgs)
+	vs.gen_and_plot_imgs_from_pca_coords(pca, resize_shape, face_imgs, num_comps_to_plot=2)
 
 
 if __name__ == '__main__':
